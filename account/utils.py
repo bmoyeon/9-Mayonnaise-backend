@@ -20,23 +20,24 @@ from laneige.settings        import (
 )
 
 def login_required(func):
-    def wrapper(self, request, *args, **kwargs):
-        access_token = request.headers.get("Authorization", None)
-        if access_token is not None:
-            try:
-                decode_token = jwt.decode(access_token, SECRET_KEY, algorithm=ALGORITHM)
-                account_id = decode_token['user_email']
-                account = Account.objects.get(id=account_id)
-                request.user_id = account
-                return func(self, request, *args, **kwargs)
-            
-            except jwt.DecodeError:
-                return JsonResponse({'message' : 'INVALID TOKEN'}, status=400)
-            except Account.DoesNotExist:
-                return JsonResponse({'message' : 'NOT_EXIST_EMAIL'}, status=400)
-        
-        else:
-            return JsonResponse({'message' : 'LOGIN REQUIRED'}, status=401)
+    def wrapper(self, request=requests, *args, **kwargs):
+        try:
+            encode_token = request.headers["Authorization"] #헤더의 토큰 값을 입력해준다.
+            if "Authorization" not in request.headers: #header에 토큰값이 담겨있는지 확인한다.
+                return JsonResponse({"error_code" : "INVALID_LOGIN"}, status=401)
+            data = jwt.decode(encode_token, SECRET_KEY, algorithms='HS256') #데이터를 decode하여준다. encode할 때 썻던 id값을 추출하기 위해서 이다.
+            print(data)
+            user = Account.objects.get(id = data['user_id']) #id를 통해 user의 정보를 user에 담아준다.
+            request.user_id = user #가장 중요한 부분이다. get을 통해 가져온 user의 정보를 request.user에 담아준다. 이는 후에 데코레이터를 붙혀줄 views에 사용된다.
+            return func(self, request, *args, **kwargs) #리턴되는 requset의 값은 user을 정보를 담은 requset가 된다.
+        except jwt.DecodeError:
+            return JsonResponse({"error_code":"INVALID_TOKEN"}, status=401)
+        except Account.DoesNotExist:
+            return JsonResponse({"error_code":"UNKNOWN_USER"}, status=401)
+        except Exception as e:
+            print(e)
+
+    return wrapper
         
 def send_sms(phone_number):
     

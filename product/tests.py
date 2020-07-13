@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 
 from django.test import (
@@ -231,3 +232,8 @@ class ProductDetailTest(TestCase):
         response = client.get('/product', content_type = 'application/json')
 
         self.assertEqual(response.status_code, 400)
+=======
+from django.test import TestCase
+
+# Create your tests here.
+>>>>>>> e91a8e6... shop model views, test done & review testing
