@@ -23,6 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = my_settings.SECRET['secret']
 ALGORITHM = my_settings.ALGORITHM
+ACCESS_KEY = my_settings.ACCESS_KEY
+NAVER_SECRET_KEY = my_settings.NAVER_SECRET_KEY
+NAVER_URI = my_settings.NAVER_URI
+NAVER_SMS_URI = my_settings.NAVER_SMS_URI
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'product',
+    'account'
 ]
 
 MIDDLEWARE = [
