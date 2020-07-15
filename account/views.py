@@ -19,6 +19,7 @@ from laneige.settings        import (
     NAVER_URI,
     ALGORITHM
 )
+
 from .models                import (
     Account,
     Gender
@@ -59,7 +60,7 @@ class SignInView(View):
                 account = Account.objects.get(user_email=account_data['user_email'])
                 
                 if bcrypt.checkpw(account_data['password'].encode('utf-8'), account.password.encode('utf-8')):
-                    token = jwt.encode({'user_email' : account.id }, SECRET_KEY, algorithm = ALGORITHM)
+                    token = jwt.encode({'user_id' : account.id }, SECRET_KEY, algorithm = ALGORITHM)
                     return JsonResponse({ 'access_token' : token.decode('utf-8')}, status=200)
                  
                 return JsonResponse({ 'message' : 'WRONG_PASSWORD'}, status=400)    
@@ -88,7 +89,7 @@ class KakaoView(View):
         try:
             if Account.objects.filter(is_social_user = kakao_id).exists():
                 user    = Account.objects.get(is_social_user = kakao_id)
-                token   = jwt.encode({'user_email' : user.id }, SECRET_KEY, algorithm = ALGORITHM)
+                token   = jwt.encode({'user_id' : user.id }, SECRET_KEY, algorithm = ALGORITHM)
                 return JsonResponse({"access_token":token.decode('utf-8')}, status = 200)
 
             else:

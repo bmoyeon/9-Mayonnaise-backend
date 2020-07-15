@@ -19,24 +19,27 @@ from laneige.settings        import (
     ALGORITHM
 )
 
-def login_required(func):
+def login_required(func): 
     def wrapper(self, request, *args, **kwargs):
-        access_token = request.headers.get("Authorization", None)
-        if access_token is not None:
-            try:
-                decode_token = jwt.decode(access_token, SECRET_KEY, algorithm=ALGORITHM)
-                account_id = decode_token['user_email']
-                account = Account.objects.get(id=account_id)
-                request.user_id = account
-                return func(self, request, *args, **kwargs)
+
+        if "Authorization" not in request.headers:
+            return JsonResponse({"error_code" : "INVALID_LOGIN"}, status=401)
+
+        encode_token = request.headers["Authorization"]
+        try:
+            data = jwt.decode(encode_token, SECRET_KEY, algorithms=ALGORITHM)                      
+            user = Account.objects.get(id = data["user_id"]).id
+            print(user)
+            request.user_id = user
             
-            except jwt.DecodeError:
-                return JsonResponse({'message' : 'INVALID TOKEN'}, status=400)
-            except Account.DoesNotExist:
-                return JsonResponse({'message' : 'NOT_EXIST_EMAIL'}, status=400)
-        
-        else:
-            return JsonResponse({'message' : 'LOGIN REQUIRED'}, status=401)
+        except jwt.DecodeError:
+            return JsonResponse({"error_code":"INVALID_TOKEN"}, status=401)
+
+        except Account.DoesNotExist:
+            return JsonResponse({"error_code":"UNKNOWN_USER"}, status=401)
+
+        return func(self, request, *args, **kwargs) 
+    return wrapper
         
 def send_sms(phone_number):
     

@@ -6,12 +6,15 @@ import unittest
 
 from django.test       import TestCase
 from django.test       import Client
+from unittest.mock     import (
+    patch, 
+    MagicMock
+)
+
 from .models     import (
     Account,
     Gender
 )
-
-from unittest.mock     import patch, MagicMock
 
 class SignUpTest(TestCase):
     def setUp(self):  
