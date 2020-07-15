@@ -141,3 +141,93 @@ class ProductTest(TestCase):
         response = client.get('/product?types_id=1', content_type = 'application/json')
 
         self.assertEqual(response.status_code, 400)
+
+class ProductDetailTest(TestCase):
+
+    def setUp(self):
+        client = Client()
+
+        Product.objects.create(
+            id = 1,
+            name_ko = "스킨",
+            name_en = "SKIN",
+            description = "스킨이에요.",
+            price = 29000.00,
+            volume = "200ml",
+            ingredient = "정제수",
+            feature = "html"
+        )
+        
+        Tag.objects.create(
+            id = 1,
+            name = "지성피부"
+        )
+
+        Tag.objects.create(
+            id = 2,
+            name = "산뜻한스킨"
+        )
+
+        ProductTag.objects.create(
+            id = 1,
+            product = Product.objects.get(id=1),
+            tag = Tag.objects.get(id=1),
+        )
+
+        ProductTag.objects.create(
+            id = 2,
+            product = Product.objects.get(id=1),
+            tag = Tag.objects.get(id=2),
+        )
+        
+        Image.objects.create(
+            id = 1,
+            image_url = "https://thumb.png",
+            product = Product.objects.get(id=1),
+            is_main_img = 1
+        )
+
+    def tearDown(self):
+        Product.objects.all().delete()
+        Tag.objects.all().delete()
+        ProductTag.objects.all().delete()
+        Image.objects.all().delete()
+
+    def test_productdetail_get_success(self):
+        client = Client()
+        response = client.get('/product/1', content_type = 'application/json')
+        result = {
+            "item": {
+
+                "product_id": 1,
+                "product_name_ko": "스킨",
+                "product_name_en": "SKIN",
+                "product_tag": [
+                    "지성피부",
+                    "산뜻한스킨"
+                ],
+                "product_description": "스킨이에요.",
+                "product_price": "29000.00",
+                "product_volume": "200ml",
+                "product_images": [
+                    "https://thumb.png"
+                ],
+                "product_ingredient": "정제수",
+                "product_feature": "html",
+            }  
+        }
+
+        self.assertEqual(response.json(), result)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_productdetail_get_not_found(self):
+        client = Client()
+        response = client.get('/product/2', content_type = 'application/json')
+        
+        self.assertEqual(response.status_code, 404)
+    
+    def test_productdetail_keyerror(self):
+        client = Client()
+        response = client.get('/product', content_type = 'application/json')
+
+        self.assertEqual(response.status_code, 400)

@@ -11,7 +11,8 @@ from .models import (
     Type,
     Category,
     ProductCategory,
-    Product
+    Product,
+    ProductSeries
 )
 
 class ProductListView(View):
@@ -44,6 +45,56 @@ class ProductListView(View):
             } for product in products]
 
             return JsonResponse({"product_list" : product_list}, status = 200)
+
+        except KeyError:
+            return HttpResponse(status = 400)
+    
+class ProductDetailView(View):
+    def get(self, request, product_id):
+        try:
+
+            if not product_id:
+                raise KeyError
+
+            if not Product.objects.filter(id = product_id).exists():
+                return HttpResponse(status = 404)
+
+            product = Product.objects.prefetch_related(
+                'producttag_set__tag',
+                'image_set',
+                'productseries_set__series'
+            ).get(id=product_id)
+
+            series_id = None
+
+            if product.productseries_set.filter(product_id=product_id).exists():
+                series_id = product.productseries_set.get(product_id=product_id).series_id
+
+            series = ProductSeries.objects.filter(series_id = series_id).prefetch_related('product__image_set')
+
+            item = {
+                'product_id'          : product.id,
+                'product_name_ko'     : product.name_ko,
+                'product_name_en'     : product.name_en,
+                'product_tag'         : [tag_name.tag.name for tag_name in product.producttag_set.all()],
+                'product_description' : product.description,
+                'product_price'       : product.price,
+                'product_volume'      : product.volume,
+                'product_images'      : [images.image_url for images in product.image_set.all()],
+                'product_ingredient'  : product.ingredient,
+                'product_feature'     : product.feature.replace("src=\"", "src=\"https://www.laneige.com"),
+                'product_series'      : [{
+                    'product_id'      : series_product.product_id,
+                    'product_name_ko' : series_product.product.name_ko,
+                    'product_image'   : series_product.product.image_set.get(is_main_img=1).image_url,
+                    'step'            : series_product.step
+                } for series_product in series]
+            }
+            
+            if not item['product_series']:
+                del item['product_series']
+
+            return JsonResponse({"item" : item}, status = 200)
 
         except KeyError:
             return HttpResponse(status = 400)
