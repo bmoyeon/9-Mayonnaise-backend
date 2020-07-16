@@ -29,7 +29,6 @@ def login_required(func):
         try:
             data = jwt.decode(encode_token, SECRET_KEY, algorithms=ALGORITHM)                      
             user = Account.objects.get(id = data["user_id"]).id
-            print(user)
             request.user_id = user
             
         except jwt.DecodeError:
@@ -38,7 +37,8 @@ def login_required(func):
         except Account.DoesNotExist:
             return JsonResponse({"error_code":"UNKNOWN_USER"}, status=401)
 
-        return func(self, request, *args, **kwargs) 
+        return func(self, request, *args, **kwargs)
+    
     return wrapper
         
 def send_sms(phone_number):
@@ -67,7 +67,7 @@ def send_sms(phone_number):
                 'countryCode'   : "82",
                 'from'          : '01041727335',
                 'messages'      : [{'to':phone_number}],
-                'content'       : "라네즈 회원 가입을 축하합니다"
+                'content'       : "마요네즈 회원 가입을 축하합니다"
             }
     
     requests.post(NAVER_SMS_URI, headers=headers, json=payload)

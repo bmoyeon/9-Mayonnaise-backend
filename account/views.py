@@ -26,6 +26,9 @@ from .models                import (
 )
 from .utils  import send_sms
 
+from threading import Timer
+from multiprocessing import Process
+    
 class SignUpView(View):
     def post(self, request):
         account_data = json.loads(request.body)
@@ -36,18 +39,19 @@ class SignUpView(View):
             
             else :
                 hashed_password = bcrypt.hashpw(account_data['password'].encode('utf-8'), bcrypt.gensalt())
-                Account(
+                user = Account.objects.create(
                     name            = account_data['name'],
                     password        = hashed_password.decode('utf-8'),
                     birthdate       = account_data['birthdate'],
                     gender          = Gender.objects.get(name=account_data['gender']),
                     phone_number    = account_data['phone_number'],
                     user_email      = account_data['user_email']
-                ).save()
+                )
                 
                 send_sms(account_data['phone_number'])
+        
                 return HttpResponse(status = 200)
-
+                
         except KeyError:
             return JsonResponse({'message' : 'INVALID_KEYS'}, status = 400)
         
