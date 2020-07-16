@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('phone_number', models.CharField(max_length=20)),
+                ('name', models.CharField(max_length=20)),
             ],
             options={
                 'db_table': 'genders',
@@ -28,10 +29,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=50)),
                 ('birthdate', models.CharField(max_length=50)),
-                ('password', models.CharField(max_length=1000)),
-                ('phone_number', models.CharField(max_length=50)),
-                ('user_id', models.TextField()),
-                ('is_social_user', models.BooleanField(default=False)),
+                ('password', models.CharField(max_length=1000, null=True)),
+                ('phone_number', models.CharField(max_length=50, null=True)),
+                ('user_email', models.CharField(max_length=100)),
+                ('is_social_user', models.CharField(max_length=100)),
                 ('gender', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='account.Gender')),
             ],
             options={
