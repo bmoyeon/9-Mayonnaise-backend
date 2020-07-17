@@ -15,7 +15,8 @@ import my_settings
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -27,6 +28,8 @@ ACCESS_KEY = my_settings.ACCESS_KEY
 NAVER_SECRET_KEY = my_settings.NAVER_SECRET_KEY
 NAVER_URI = my_settings.NAVER_URI
 NAVER_SMS_URI = my_settings.NAVER_SMS_URI
+S3 = my_settings.S3_CONFIG
+S3_URL = my_settings.S3_URL
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,7 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'shop',
     'product',
+<<<<<<< HEAD
+=======
+    'review',
+>>>>>>> master
     'account',
     'order'
 ]
@@ -105,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'ko-kr'
+LANGUAGE_CODE = 'ko'
 
 TIME_ZONE = 'Asia/Seoul'
 
@@ -121,11 +129,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#REMOVE_APPEND_SLASH_WARNING
+# REMOVE_APPEND_SLASH_WARNING
 APPEND_SLASH = False
 
-##CORS
-CORS_ORIGIN_ALLOW_ALL=True
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_METHODS = (

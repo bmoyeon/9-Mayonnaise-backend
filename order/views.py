@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 import bcrypt
 import jwt
@@ -122,3 +123,8 @@ class CartListView(View):
         except :
             return JsonResponse({"product_list" :"NOT_EXIST_CART_NUMBER"}, status = 200)   
         
+=======
+from django.shortcuts import render
+
+# Create your views here.
+>>>>>>> master
