@@ -27,12 +27,12 @@ class CartAddTest(TestCase):
         
         Account(
             id =1,
-            name            = "박준모",
+            name            = "홍길동",
             password        = bcrypt.hashpw('p1234'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             birthdate       = "19880705",
             gender          = Gender.objects.get(name="male"),
-            phone_number    = "01041737335",
-            user_email      = "junnoli18@gmail.com"
+            phone_number    = "01012345678",
+            user_email      = "test@gmail.com"
         ).save()
         
         Product(
@@ -42,8 +42,8 @@ class CartAddTest(TestCase):
             description     = "산뜻하게 수분을 충전해주는 워터리 텍스쳐로 강력하게 자외선을 차단해주는 수분 선크림이에요",
             price           = "40000",
             volume          = "70ml",
-            ingredient      = "junnoli18@gmail.com",
-            feature         = "junnoli18@gmail.com"
+            ingredient      = "전성분,물,소금",
+            feature         = "전성분,물,소금"
         ).save()
         
         OrderStatus(
@@ -155,12 +155,12 @@ class CartListTest(TestCase):
         
         Account(
             id =1,
-            name            = "박준모",
+            name            = "홍길동",
             password        = bcrypt.hashpw('p1234'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             birthdate       = "19880705",
             gender          = Gender.objects.get(name="male"),
-            phone_number    = "01041737335",
-            user_email      = "junnoli18@gmail.com"
+            phone_number    = "01012345678",
+            user_email      = "test@gmail.com"
         ).save()
         
         Product(
@@ -168,10 +168,10 @@ class CartListTest(TestCase):
             name_ko         = "워터뱅크 모이스춰 에센스",
             name_en         = "Water Bank Moisture Essence",
             description     = "산뜻하게 수분을 충전해주는 워터리 텍스쳐로 강력하게 자외선을 차단해주는 수분 선크림이에요",
-            price           = "40000.00",
+            price           = "40000",
             volume          = "70ml",
-            ingredient      = "junnoli18@gmail.com",
-            feature         = "junnoli18@gmail.com"
+            ingredient      = "전성분,물,소금",
+            feature         = "전성분,물,소금"
         ).save()
         
         OrderStatus(
@@ -223,7 +223,7 @@ class CartListTest(TestCase):
                 "productEnName": "Water Bank Moisture Essence",
                 "productImg": "https://www.laneige.com/kr/ko/skincare/__icsFiles/afieldfile/2020/03/10/wd-emulsion-02_1.png",
                 "productVolumn": "70ml",
-                "productPrice": "40000.00",
+                "productPrice": 40000,
                 "productQuantity" :1
                 }
             ]
@@ -271,7 +271,7 @@ class CartListTest(TestCase):
                 "productEnName": "Water Bank Moisture Essence",
                 "productImg": "https://www.laneige.com/kr/ko/skincare/__icsFiles/afieldfile/2020/03/10/wd-emulsion-02_1.png",
                 "productVolumn": "70ml",
-                "productPrice": "40000.00",
+                "productPrice": 40000,
                 "productQuantity" :3
                 }
             ]

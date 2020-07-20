@@ -47,12 +47,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'shop',
     'product',
-<<<<<<< HEAD
-=======
     'review',
->>>>>>> master
     'account',
-    'order'
+    'order',
+    'reservation'
 ]
 
 MIDDLEWARE = [

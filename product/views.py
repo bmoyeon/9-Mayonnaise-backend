@@ -18,34 +18,40 @@ from .models import (
 class ProductListView(View):
     def get(self, request):        
         try:
-            if 'menu_id' not in request.GET.keys():
-                raise KeyError
-
-            if not Menu.objects.filter(id = request.GET.get('menu_id')).exists():
-                return HttpResponse(status = 404)
-
-            filter_dict = {
-                'productcategory__category__menu'      : request.GET.get('menu_id'), 
-                'productcategory__category__type_name' : request.GET.get('type_id')
-            }
-            
-            if 'type_id' not in request.GET.keys():
-                del filter_dict['productcategory__category__type_name']
-
+            search = request.GET.get('search')
+            sort = request.GET.get('sort')
+            offset = int(request.GET.get('offset', "0"))
+            limit = int(request.GET.get('limit', "16"))
+            filter_dict = {}
+            if 'menu_id' in request.GET.keys():
+                filter_dict['productcategory__category__menu'] = request.GET.get('menu_id')
+                
+                if int(request.GET.get('menu_id')) > Menu.objects.count():
+                    return JsonResponse({"error_code" : "DOES_NOT_EXISTS_MENU"}, status = 404)
+            if 'type_id' in request.GET.keys():
+                filter_dict['productcategory__category__type_name'] = request.GET.get('type_id')
             products = Product.objects.prefetch_related(
                 'productcategory_set__category'
             ).filter(**filter_dict).distinct().prefetch_related(
                 'producttag_set__tag').prefetch_related('image_set')
-
+            if search:
+                products = products.filter(name_ko__contains = search)
+            
+            if sort == 'high_price':
+                products = products.order_by('-price')
+           
+            elif sort == 'low_price':
+                products = products.order_by('price')
+            
+            elif sort == 'new':
+                products = products.order_by('id')
             product_list = [{
                 'product_id'      : product.id,
                 'product_name_ko' : product.name_ko,
                 'product_tag'     : [tag_name.tag.name for tag_name in product.producttag_set.all()],
                 'product_image'   : product.image_set.get(is_main_img=True).image_url
-            } for product in products]
-
+            } for product in products[offset : offset + limit]]
             return JsonResponse({"product_list" : product_list}, status = 200)
-
         except KeyError:
             return HttpResponse(status = 400)
     
