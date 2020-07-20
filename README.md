@@ -21,7 +21,7 @@
 - Postman: api 문서화
 - RESTful API
 - unit test
-- AWS
+- AWS, Docker
 
 ## 기능
 - 회원가입 및 로그인 (bcrypt와 jwt를 활용한 access_token 전송)
