@@ -28,7 +28,7 @@ def login_required(func):
         encode_token = request.headers["Authorization"]
         try:
             data = jwt.decode(encode_token, SECRET_KEY, algorithms=ALGORITHM)                      
-            user = Account.objects.get(id = data["user_id"])
+            user = Account.objects.get(id = data["user_email"])
             request.user_id = user
             
         except jwt.DecodeError:
