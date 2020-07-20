@@ -9,8 +9,8 @@ import time
 
 from django.http import JsonResponse
 
-from account.models import Account
-from laneige.settings import (
+from account.models         import Account
+from laneige.settings       import (
     SECRET_KEY,
     ACCESS_KEY,
     NAVER_SECRET_KEY,
@@ -42,7 +42,7 @@ def login_required(func):
     return wrapper
         
 def send_sms(phone_number):
-
+    
     timestamp = int(time.time() * 1000)
     timestamp = str(timestamp)
     access_key = ACCESS_KEY
