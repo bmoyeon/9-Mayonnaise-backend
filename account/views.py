@@ -19,12 +19,16 @@ from laneige.settings        import (
     NAVER_URI,
     ALGORITHM
 )
+
 from .models                import (
     Account,
     Gender
 )
 from .utils  import send_sms
 
+from threading import Timer
+from multiprocessing import Process
+    
 class SignUpView(View):
     def post(self, request):
         account_data = json.loads(request.body)
@@ -35,18 +39,19 @@ class SignUpView(View):
             
             else :
                 hashed_password = bcrypt.hashpw(account_data['password'].encode('utf-8'), bcrypt.gensalt())
-                Account(
+                user = Account.objects.create(
                     name            = account_data['name'],
                     password        = hashed_password.decode('utf-8'),
                     birthdate       = account_data['birthdate'],
                     gender          = Gender.objects.get(name=account_data['gender']),
                     phone_number    = account_data['phone_number'],
                     user_email      = account_data['user_email']
-                ).save()
+                )
                 
                 send_sms(account_data['phone_number'])
+        
                 return HttpResponse(status = 200)
-
+                
         except KeyError:
             return JsonResponse({'message' : 'INVALID_KEYS'}, status = 400)
         
@@ -59,7 +64,7 @@ class SignInView(View):
                 account = Account.objects.get(user_email=account_data['user_email'])
                 
                 if bcrypt.checkpw(account_data['password'].encode('utf-8'), account.password.encode('utf-8')):
-                    token = jwt.encode({'user_email' : account.id }, SECRET_KEY, algorithm = ALGORITHM)
+                    token = jwt.encode({'user_id' : account.id }, SECRET_KEY, algorithm = ALGORITHM)
                     return JsonResponse({ 'access_token' : token.decode('utf-8')}, status=200)
                  
                 return JsonResponse({ 'message' : 'WRONG_PASSWORD'}, status=400)    
@@ -88,7 +93,7 @@ class KakaoView(View):
         try:
             if Account.objects.filter(is_social_user = kakao_id).exists():
                 user    = Account.objects.get(is_social_user = kakao_id)
-                token   = jwt.encode({'user_email' : user.id }, SECRET_KEY, algorithm = ALGORITHM)
+                token   = jwt.encode({'user_id' : user.id }, SECRET_KEY, algorithm = ALGORITHM)
                 return JsonResponse({"access_token":token.decode('utf-8')}, status = 200)
 
             else:

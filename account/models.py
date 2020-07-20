@@ -1,5 +1,11 @@
 from django.db import models
 
+from product.models import Product
+# from order.models   import (
+#     Order,
+#     OrderProduct
+# )
+
 class Account(models.Model):
     name           = models.CharField(max_length = 50)
     birthdate      = models.CharField(max_length = 50)
@@ -8,6 +14,7 @@ class Account(models.Model):
     phone_number   = models.CharField(max_length = 50, null = True)
     user_email     = models.CharField(max_length = 100)
     is_social_user = models.CharField(max_length = 100 )
+    # order          = models.ManyToManyField("order.Order", through = "OrderProduct")
     
     class Meta:
         db_table = "accounts"

@@ -6,12 +6,15 @@ import unittest
 
 from django.test       import TestCase
 from django.test       import Client
+from unittest.mock     import (
+    patch, 
+    MagicMock
+)
+
 from .models     import (
     Account,
     Gender
 )
-
-from unittest.mock     import patch, MagicMock
 
 class SignUpTest(TestCase):
     def setUp(self):  
@@ -21,12 +24,12 @@ class SignUpTest(TestCase):
             ).save()
         
         Account(
-            name            = "박준모",
+            name            = "홍길동",
             password        = bcrypt.hashpw('p1234'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             birthdate       = "19880705",
             gender          = Gender.objects.get(name="male"),
-            phone_number    = "01041737335",
-            user_email      = "junnoli18@gmail.com"
+            phone_number    = "01012345678",
+            user_email      = "test@gmail.com"
         ).save()
 
     def tearDown(self):
@@ -36,12 +39,12 @@ class SignUpTest(TestCase):
     def test_signup_success(self):
         client = Client()
         account = {
-            "name"            : "박준모",
+            "name"            : "이순신",
             "password"        : "p1234",
             "birthdate"       : "19330303",
             "gender"          : "male",
-            "phone_number"    : "01029394858",
-            "user_email"      : "junnoli1@naver.com"
+            "phone_number"    : "01043215678",
+            "user_email"      : "test1@naver.com"
         }
         
         response = client.post("/account/sign-up", json.dumps(account), content_type = "application/json")
@@ -50,12 +53,12 @@ class SignUpTest(TestCase):
     def test_signup_exists_email(self):
         client = Client()
         account = {
-            "name"            : "박준모",
+            "name"            : "장보고",
             "password"        : "p1234",
             "birthdate"       : "19330303",
             "gender"          : "male",
-            "phone_number"    : "01029394858",
-            "user_email"      : "junnoli18@gmail.com"
+            "phone_number"    : "01011112222",
+            "user_email"      : "test@gmail.com"
         }
 
         response = client.post("/account/sign-up", json.dumps(account), content_type = "application/json")
@@ -65,12 +68,12 @@ class SignUpTest(TestCase):
     def test_signup_key_error(self):
         client = Client()
         account = {
-            "id"              : "박준모",
+            "id"              : "장보고",
             "password"        : "p1234",
             "birthdate"       : "19330303",
             "gender"          : "male",
-            "phone_number"    : "01029394858",
-            "user_email"      : "junnoli111@gmail.com"
+            "phone_number"    : "01011112222",
+            "user_email"      : "test2@gmail.com"
         }
 
         response = client.post("/account/sign-up", json.dumps(account), content_type = "application/json")
@@ -85,12 +88,12 @@ class SignInTest(TestCase):
             ).save()
         
         Account(
-            name            = "박준모",
+            name            = "홍길동",
             password        = bcrypt.hashpw('p1234'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             birthdate       = "19880705",
             gender          = Gender.objects.get(name="male"),
-            phone_number    = "01041737335",
-            user_email      = "junnoli18@gmail.com"
+            phone_number    = "01012345678",
+            user_email      = "test@gmail.com"
         ).save()
 
     def tearDown(self):
@@ -101,7 +104,7 @@ class SignInTest(TestCase):
         client = Client()
         account = {
             "password"        : "p1234",
-            "user_email"      : "junnoli18@gmail.com"
+            "user_email"      : "test@gmail.com"
         }
         
         response = client.post("/account/sign-in", json.dumps(account), content_type = "application/json")
@@ -111,7 +114,7 @@ class SignInTest(TestCase):
         client = Client()
         account = {
             "password"        : "p12345",
-            "user_email"      : "junnoli18@gmail.com"
+            "user_email"      : "test@gmail.com"
         }
         
         response = client.post("/account/sign-in", json.dumps(account), content_type = "application/json")
@@ -122,7 +125,7 @@ class SignInTest(TestCase):
         client = Client()
         account = {
             "password"        : "p1234",
-            "user_email"      : "junnoli20@gmail.com"
+            "user_email"      : "test11@gmail.com"
         }
         
         response = client.post("/account/sign-in", json.dumps(account), content_type = "application/json")
@@ -133,7 +136,7 @@ class SignInTest(TestCase):
         client = Client()
         account = {
             "password"        : "p1234",
-            "user_id"         : "junnoli20@gmail.com"
+            "user_id"         : "test@gmail.com"
         }
         
         response = client.post("/account/sign-in", json.dumps(account), content_type = "application/json")
@@ -148,12 +151,12 @@ class KakaoLoginTest(TestCase):
             ).save()
         
         Account(
-            name            = "박준모",
+            name            = "홍길동",
             password        = bcrypt.hashpw('p1234'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
             birthdate       = "19880705",
             gender          = Gender.objects.get(name="male"),
-            phone_number    = "01041737335",
-            user_email      = "junnoli18@gmail.com"
+            phone_number    = "01012345678",
+            user_email      = "test@gmail.com"
         ).save()
     
     @patch('account.views.requests')

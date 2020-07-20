@@ -19,27 +19,30 @@ from laneige.settings       import (
     ALGORITHM
 )
 
-def login_required(func):
-    def wrapper(self, request=requests, *args, **kwargs):
+def login_required(func): 
+    def wrapper(self, request, *args, **kwargs):
+
+        if "Authorization" not in request.headers:
+            return JsonResponse({"error_code" : "INVALID_LOGIN"}, status=401)
+
+        encode_token = request.headers["Authorization"]
         try:
-            encode_token = request.headers["Authorization"]
-            if "Authorization" not in request.headers:
-                return JsonResponse({"error_code": "INVALID_LOGIN"}, status=401)
-            data = jwt.decode(encode_token, SECRET_KEY, algorithms=ALGORITHM)
-            user = Account.objects.get(id = data['user_email']) 
+            data = jwt.decode(encode_token, SECRET_KEY, algorithms=ALGORITHM)                      
+            user = Account.objects.get(id = data["user_id"])
             request.user_id = user
-            return func(self, request, *args, **kwargs)
+            
         except jwt.DecodeError:
-            return JsonResponse({"error_code": "INVALID_TOKEN"}, status=401)
+            return JsonResponse({"error_code":"INVALID_TOKEN"}, status=401)
+
         except Account.DoesNotExist:
-            return JsonResponse({"error_code": "UNKNOWN_USER"}, status=401)
-        except Exception as e:
-            return e
+            return JsonResponse({"error_code":"UNKNOWN_USER"}, status=401)
 
+        return func(self, request, *args, **kwargs)
+    
     return wrapper
-
+        
 def send_sms(phone_number):
-
+    
     timestamp = int(time.time() * 1000)
     timestamp = str(timestamp)
     access_key = ACCESS_KEY
@@ -70,8 +73,8 @@ def send_sms(phone_number):
     
     requests.post(NAVER_SMS_URI, headers=headers, json=payload)
 
+
 def send_sms_reservation(**kwargs):
-    
     timestamp   = int(time.time() * 1000)
     timestamp   = str(timestamp)
     access_key  = ACCESS_KEY
@@ -82,14 +85,12 @@ def send_sms_reservation(**kwargs):
     message     = method + " " + uri + "\n" + timestamp + "\n"+ access_key
     message     = bytes(message, 'UTF-8')
     signingKey  = base64.b64encode(hmac.new(secret_key, message, digestmod=hashlib.sha256).digest())
-
     headers = {
         'Content-Type'              : 'application/json; charset=utf-8',
         'x-ncp-apigw-timestamp'     : timestamp,
         'x-ncp-iam-access-key'      : access_key,
         'x-ncp-apigw-signature-v2'  : signingKey,
     }
-
     payload = {
         'type'          : 'SMS',
         'contentType'   : 'COMM',
@@ -98,5 +99,4 @@ def send_sms_reservation(**kwargs):
         'messages'      : [{'to':kwargs['u_phone']}],
         'content'       : f"{kwargs['u_name']} 회원님,\n예약 번호 : {kwargs['u_number']} 로 예약이 완료되었습니다. 감사합니다.\n- 마요네즈"           
     }
-    
     requests.post(NAVER_SMS_URI, headers=headers, json=payload)
