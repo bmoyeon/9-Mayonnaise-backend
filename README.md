@@ -8,6 +8,11 @@
 ## 2차 프로젝트 소개
  피부 수분에 대한 연구를 기초로 한 화장품 브랜드 라네즈(https://www.laneige.com/kr/ko/) 웹사이트 클론 프로젝트
 
+
+## 데모영상
+[![Video Label](https://user-images.githubusercontent.com/60872814/88010998-2c0c1400-cb51-11ea-98d1-f91a9df7674e.png)](https://www.youtube.com/watch?v=xIFB2U80wgc&feature=youtu.be)
+ 
+
 ## 목표
 - https://www.laneige.com/kr/ko/ 사이트의 interface와 동일하게 화면 구현하기
 - 회원가입/로그인, 소셜로그인, cart, reservation, sms 기능 구현하기
