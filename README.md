@@ -40,3 +40,6 @@
 - 제품 검색 기능 구현
 - 좌표 값을 통해 맵 마킹
 - 각 엔드포인트에 대한 unit test 진행
+
+## postman 문서화
+https://documenter.getpostman.com/view/11626571/T17Kd6Jh?version=latest#66aa9de0-fef6-448a-bf8a-f9527d6b5b7b
