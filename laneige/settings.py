@@ -24,12 +24,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = my_settings.SECRET['secret']
 ALGORITHM = my_settings.ALGORITHM
-ACCESS_KEY = my_settings.ACCESS_KEY
-NAVER_SECRET_KEY = my_settings.NAVER_SECRET_KEY
-NAVER_URI = my_settings.NAVER_URI
-NAVER_SMS_URI = my_settings.NAVER_SMS_URI
-S3 = my_settings.S3_CONFIG
-S3_URL = my_settings.S3_URL
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,10 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'shop',
     'product',
-    'review',
-    'order',
     'account',
     'reservation'
 ]

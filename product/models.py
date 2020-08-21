@@ -6,18 +6,19 @@ class Menu(models.Model):
     class Meta:
         db_table = "menus"
 
-class Type(models.Model):
-    name = models.CharField(max_length = 50)
-
-    class Meta:
-        db_table = "types"
-
 class Category(models.Model):
-    menu      = models.ForeignKey("Menu", on_delete = models.SET_NULL, null = True)
-    type_name = models.ForeignKey("Type", on_delete = models.SET_NULL, null = True)
+    name = models.CharField(max_length = 50)
+    menu = models.ManyToManyField("Menu", through = "Pair")
 
     class Meta:
         db_table = "categories"
+
+class Pair(models.Model):
+    menu     = models.ForeignKey("Menu", on_delete = models.CASCADE)
+    category = models.ForeignKey("Category", on_delete = models.CASCADE)
+
+    class Meta:
+        db_table = "pairs"
 
 class Product(models.Model):
     name_ko          = models.CharField(max_length = 200)
@@ -27,19 +28,20 @@ class Product(models.Model):
     volume           = models.CharField(max_length = 50)
     ingredient       = models.CharField(max_length = 2000)
     feature          = models.TextField()
-    categories       = models.ManyToManyField("Category", through = "ProductCategory")
+    pairs            = models.ManyToManyField("Pair", through = "ProductPair")
     tags             = models.ManyToManyField("Tag", through = "ProductTag")
     series           = models.ManyToManyField("Series", through = "ProductSeries")
+    created_at       = models.DateTimeField(auto_now_add = True)
 
     class Meta:
         db_table = "products"
 
-class ProductCategory(models.Model):
-    product  = models.ForeignKey("Product", on_delete = models.SET_NULL, null = True)
-    category = models.ForeignKey("Category", on_delete = models.SET_NULL, null = True)
+class ProductPair(models.Model):
+    product = models.ForeignKey("Product", on_delete = models.CASCADE)
+    pair    = models.ForeignKey("Pair", on_delete = models.CASCADE)
 
     class Meta:
-        db_table = "product_categories"
+        db_table = "product_pairs"
 
 class Tag(models.Model):
     name = models.CharField(max_length = 50)
@@ -48,14 +50,14 @@ class Tag(models.Model):
         db_table = "tags"
 
 class ProductTag(models.Model):
-    product = models.ForeignKey("Product", on_delete = models.SET_NULL, null = True)
-    tag     = models.ForeignKey("Tag", on_delete = models.SET_NULL, null = True)
+    product = models.ForeignKey("Product", on_delete = models.CASCADE)
+    tag     = models.ForeignKey("Tag", on_delete = models.CASCADE)
 
     class Meta:
         db_table = "product_tags"
 
 class Series(models.Model):
-    series = models.CharField(max_length = 50)
+    name = models.CharField(max_length = 50)
 
     class Meta:
         db_table = "series"

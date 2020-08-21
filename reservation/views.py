@@ -1,6 +1,5 @@
 import json
 import random
-import string
 
 from django.views import View
 from django.http  import (
@@ -8,139 +7,117 @@ from django.http  import (
     HttpResponse
 )
 
-from .models        import Reservation
-from account.models import Account
-from account.utils  import (
-    login_required,
-    send_sms_reservation
+from .models import Reservation
+from .utils import (
+    check,
+    create_num
 )
+from account.models import Account
+from account.utils import login_required
 
 class ReservationView(View):
 
     @login_required
     def get(self, request):
-        user = Account.objects.select_related('gender').get(id = request.user_id.id)
+        user = Account.objects.select_related('gender').get(id = request.user.id)
         user_info = {
-            'user_name'         : request.user_id.name,
-            'user_phone_number' : request.user_id.phone_number,
-            'user_gender'       : user.gender.name
+            'user_name'   : request.user.name,
+            'user_phone'  : request.user.phone,
+            'user_gender' : user.gender.name
         }
         return JsonResponse({'user_info' : user_info}, status = 200)
-    
+
     @login_required
     def post(self, request):
         data = json.loads(request.body)
 
         try:
             if Reservation.objects.filter(date = data['date'], time = data['time']).exists():
-                return JsonResponse({"error_code" : 'ALREADY_EXISTS'}, status = 401)
-
-            def check(num):
-                if Reservation.objects.filter(reservation_number = num):
-                    return num
-                
-            def create_num():
-                string_num = string.ascii_letters + string.digits
-                serial_num= ''.join(random.choice(string_num) for i in range(10))
-                if check(serial_num):  
-                    return create_num()
-                return serial_num
+                return JsonResponse({'message' : 'ALREADY_EXISTS'}, status = 401)
 
             serial_number = create_num()
-
             Reservation.objects.create(
                 reservation_number = serial_number,
                 store              = data['store'],
                 date               = data['date'],
                 time               = data['time'],
                 age                = data['age'],
-                account            = request.user_id
+                account            = request.user
             )
-
-            send_sms_reservation(
-                u_phone = request.user_id.phone_number,
-                u_name = request.user_id.name,
-                u_number = serial_number,
-                date = data['date'],
-                time = data['time'],
-                store = data['store']
-            )
-            
             return HttpResponse(status = 200)
 
         except KeyError:
-            return HttpResponse(status = 400)
-    
-    def delete(self, request):
-        reservation_no = request.GET.get('reservation_no')
+            return JsonResponse({'message' : 'INVALID_KEY'}, status = 400)
 
+    def delete(self, request):
         try:
             if 'reservation_no' not in request.GET.keys():
                 raise KeyError
+            reservation_no = request.GET.get('reservation_no')
 
             if not Reservation.objects.filter(reservation_number = reservation_no).exists():
-                return JsonResponse({"error_code" : "INVALID_RESERVATION_NO"}, status = 401)
-            
+                return JsonResponse({'message' : 'DOES_NOT_EXIST'}, status = 401)
+
             reservation = Reservation.objects.get(reservation_number = reservation_no)
             reservation.delete()
             return HttpResponse(status = 200)
-        
+
         except KeyError:
-            return HttpResponse(status = 400)
+            return JsonResponse({'message' : 'INVALID_KEY'}, status = 400)
 
 class ReservationCheckView(View):
     @login_required
     def get(self, request):
         try:
-            account_id = request.user_id
-            reservation_all = Reservation.objects.select_related('account').filter(
-                account_id = account_id).order_by('-created_at')
+            account_id = request.user.id
+            reservations = Reservation.objects.filter(account = account_id).select_related(
+                'account').order_by('-created_at')
 
             reservation_list = [{
-                "reservation_no"     : reservation.reservation_number,
-                "reservation_store"  : reservation.store,
-                "reservation_date"   : reservation.date,
-                "reservation_time"   : reservation.time,
-                "name"               : reservation.account.name,
-                "phone_number"       : reservation.account.phone_number
-            } for reservation in reservation_all]
+                "reservation_no"    : reservation.reservation_number,
+                "reservation_store" : reservation.store,
+                "reservation_date"  : reservation.date,
+                "reservation_time"  : reservation.time,
+                "name"              : reservation.account.name,
+                "phone"             : reservation.account.phone
+            } for reservation in reservations]
             return JsonResponse({"reservation_list" : reservation_list}, status = 200)
 
         except KeyError:
-            return HttpResponse(status = 400)
+            return JsonResponse({'message' : 'INVALID_KEY'}, status = 400)
 
 class ReservationUpdateView(View):
     def get(self, request):
-        reservation_no = request.GET.get('reservation_no')
-
         try:
             if 'reservation_no' not in request.GET.keys():
                 raise KeyError
-
-            if not Reservation.objects.filter(reservation_number = reservation_no).exists():
-                    return JsonResponse({"error_code" : "INVALID_RESERVATION_NO"}, status = 401)
-        
-            reservation = Reservation.objects.get(reservation_number = reservation_no)
-            reservation_info = {
-                "reservation_no"     : reservation.reservation_number,
-                "reservation_store"  : reservation.store,
-                "reservation_date"   : reservation.date,
-                "reservation_time"   : reservation.time,
-                "name"               : reservation.account.name,
-                "phone_number"       : reservation.account.phone_number
-            }
-            return JsonResponse({"reservation_info" : reservation_info}, status = 200)
-        
-        except KeyError:
-            return HttpResponse(status = 400)
-
-    def put(self, request):
-        data = json.loads(request.body)
-        try:
             reservation_no = request.GET.get('reservation_no')
 
             if not Reservation.objects.filter(reservation_number = reservation_no).exists():
-                return JsonResponse({"error_code" : "INVALID_RESERVATION_NO"}, status = 401)
+                return JsonResponse({'message' : 'DOES_NOT_EXIST'}, status = 401)
+
+            reservation = Reservation.objects.get(reservation_number = reservation_no)
+            reservation_info = {
+                "reservation_no"    : reservation.reservation_number,
+                "reservation_store" : reservation.store,
+                "reservation_date"  : reservation.date,
+                "reservation_time"  : reservation.time,
+                "name"              : reservation.account.name,
+                "phone"             : reservation.account.phone
+            }
+            return JsonResponse({"reservation_info" : reservation_info}, status = 200)
+
+        except KeyError:
+            return JsonResponse({'message' : 'INVALID_KEY'}, status = 400)
+
+    def put(self, request):
+        data = json.loads(request.body)
+
+        try:
+            reservation_no = request.GET.get('reservation_no', None)
+
+            if not Reservation.objects.filter(reservation_number = reservation_no).exists():
+                return JsonResponse({'message' : 'DOES_NOT_EXIST'}, status = 401)
 
             reservation = Reservation.objects.get(reservation_number = reservation_no)
             reservation.store = data['store']
@@ -152,4 +129,4 @@ class ReservationUpdateView(View):
             return HttpResponse(status = 200)
 
         except KeyError:
-            return HttpResponse(status = 400)
+            return JsonResponse({'message' : 'INVALID_KEY'}, status = 400)
